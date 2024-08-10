@@ -14,7 +14,7 @@ it("should receive a ride request with passanger info", async () => {
 		isPassenger: false,
 	};
 
-	await fetch("http://localhost:3000/api/v1/account/sign-up", {
+	const outputSignUp = await fetch("http://localhost:3000/api/v1/account/sign-up", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -51,29 +51,34 @@ it("should receive a ride request with passanger info", async () => {
 		.payload(inputRequestRide)
 		.then(async (response) => {
 			const payload = await response.json();
-			console.log(payload);
-
 			expect(response.statusCode).toBe(200);
 			return payload;
 		});
 
 	expect(outputRequestRide.rideId).toBeDefined();
 
-	// const outputGetRide = await server
-	// 	.inject()
-	// 	.get(`/api/v1/ride/${outputRequestRide.rideId}`)
-	// 	.headers({
-	// 		Authorization: `Bearer ${outputLogin.token}`,
-	// 	})
-	// 	.payload(inputRequestRide)
-	// 	.then((response) => response.json());
+	const outputGetRide = await server
+		.inject()
+		.get(`/api/v1/ride/${outputRequestRide.rideId}`)
+		.headers({
+			Authorization: `Bearer ${outputLogin.token}`,
+		})
+		.payload(inputRequestRide)
+		.then(async (response) => {
+			const payload = await response.json();
+			expect(response.statusCode).toBe(200);
+			return payload;
+		});
 
-	// expect(outputGetRide.rideId).toBe(outputRequestRide.rideId);
-	// expect(outputGetRide.passengerId).toBe(outputSignUp.passengerId);
-	// expect(outputGetRide.passengerName).toBe("John Doe");
-	// expect(outputGetRide.fromLat).toBe(inputRequestRide.fromLat);
-	// expect(outputGetRide.fromLong).toBe(inputRequestRide.fromLong);
-	// expect(outputGetRide.toLat).toBe(inputRequestRide.toLat);
-	// expect(outputGetRide.toLong).toBe(inputRequestRide.toLong);
-	// expect(outputGetRide.status).toBe("requested");
+	expect(outputGetRide.rideId).toBe(outputRequestRide.rideId);
+	expect(outputGetRide.passengerId).toBe(outputSignUp.accountId);
+	expect(outputGetRide.pickupLocation).toStrictEqual({
+		latitude: inputRequestRide.fromLat,
+		longitude: inputRequestRide.fromLong,
+	});
+	expect(outputGetRide.dropoffLocation).toStrictEqual({
+		latitude: inputRequestRide.toLat,
+		longitude: inputRequestRide.toLong,
+	});
+	expect(outputGetRide.status).toBe("REQUESTED");
 });
