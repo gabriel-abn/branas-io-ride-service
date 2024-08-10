@@ -36,6 +36,10 @@ export class Ride extends Entity<RideProps> {
 		});
 	}
 
+	static restore(props: RideProps): Ride {
+		return new Ride(props);
+	}
+
 	get passengerId(): string {
 		return this._props.passengerId;
 	}
@@ -74,5 +78,9 @@ export class Ride extends Entity<RideProps> {
 
 	get requestDate() {
 		return this._props.requestDate;
+	}
+
+	get driverId() {
+		return this._props.driverId;
 	}
 }

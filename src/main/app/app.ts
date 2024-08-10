@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import fastifyEnv from "@fastify/env";
 import Fastify from "fastify";
+import GetRideFactory from "../factories/get-ride-factory";
 import RequestRideFactory from "../factories/request-ride-factory";
 import fastifyRouteAdapter from "../middlewares/fastify-route-adapter";
 import jwtAuthMiddleware from "../middlewares/jwt-auth-middleware";
@@ -33,6 +34,13 @@ server.route({
 
 	// 	reply.send(response.body).status(response.status);
 	// },
+});
+
+server.route({
+	method: "GET",
+	url: "/api/v1/ride/:rideId",
+	onRequest: jwtAuthMiddleware,
+	handler: fastifyRouteAdapter(GetRideFactory.makeController()),
 });
 
 export default server;

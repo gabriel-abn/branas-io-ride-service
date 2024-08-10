@@ -1,13 +1,21 @@
 import ApplicationError from "src/application/common/application-error";
-import { z } from "zod";
+import type { z } from "zod";
 import type { HttpRequest, HttpResponse } from "./http";
 
 abstract class Controller<T = any> {
-	constructor(private readonly schema: z.ZodObject<any> = z.object({})) {}
+	private readonly schema?: z.ZodSchema;
+
+	constructor(schema?: z.ZodSchema) {
+		this.schema = schema;
+	}
 
 	abstract run(request: HttpRequest<T>): Promise<any>;
 
 	protected validate(payload: any): T {
+		if (!this.schema) {
+			return payload;
+		}
+
 		const { data, success, error } = this.schema.safeParse(payload);
 
 		if (!success) {
@@ -19,7 +27,7 @@ abstract class Controller<T = any> {
 
 	public async handle(request: HttpRequest<any>) {
 		try {
-			const payload = await this.validate(request.body);
+			const payload = this.validate(request.body);
 
 			const result = await this.run({
 				body: payload,
@@ -30,6 +38,10 @@ abstract class Controller<T = any> {
 
 			return result;
 		} catch (error: any) {
+			if (error instanceof ApplicationError) {
+				return this.badRequest({ name: error.name, error: error.message });
+			}
+
 			return this.serverError({ error: error.message });
 		}
 	}
