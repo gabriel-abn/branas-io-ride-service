@@ -39,7 +39,7 @@ abstract class Controller<T = any> {
 			return result;
 		} catch (error: any) {
 			if (error instanceof ApplicationError) {
-				return this.badRequest({ name: error.name, error: error.message });
+				return this.badRequest({ error: error.name, message: error.message });
 			}
 
 			return this.serverError({ error: error.message });
