@@ -8,7 +8,7 @@ export default class Postgres implements RelationalDatabase {
 	private constructor() {
 		const databaseUrl = process.env.DATABASE_URL
 			? process.env.DATABASE_URL
-			: "postgres://postgres:123456@localhost:5433/app";
+			: "postgres://postgres:123456@localhost:5432/ride";
 		this.connection = new Pool({
 			connectionString: databaseUrl,
 		});
